@@ -1,0 +1,33 @@
+curl -X PUT "http://localhost:9091/user/user001" \
+-H "Content-Type: application/json" \
+-d '{"email": "updatedemail@example.com"}'
+curl -X PUT "http://localhost:9091/user/user123" \
+-H "Content-Type: application/json" \
+-d '{"name": "Updated Name", "address": "New Address, Street 123"}'
+curl -X POST "http://localhost:9091/user" \
+-H "Content-Type: application/json" \
+-d '{
+    "userId": "user003",
+    "name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "phone": "+1122334455",
+    "address": "456 Oak Avenue",
+    "orders": [{"orderId": "order003"}],
+    "cart": [{"itemId": "item004", "itemPrice": 299.99}],
+    "wishlist": [{"itemId": "item005"}],
+    "notifications": [{
+        "notificationId": "notif002",
+        "notificationText": "Your item has been shipped",
+        "notificationDate": "2024-10-01",
+        "notificationType": "shipping"
+    }]
+}'
+curl -X POST "http://localhost:9091/user" \
+-H "Content-Type: application/json" \
+-d '{
+    "userId": "user002",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "+987654321",
+    "address": "123 Elm Street"
+}'
