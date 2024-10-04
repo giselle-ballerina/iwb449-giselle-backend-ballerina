@@ -10,20 +10,13 @@ configurable int port = 27017;
 configurable string username = "testUser";
 configurable string password = "testPassword";
 configurable string database = "ecommerce";
-
+//     String connectionString = "mongodb+srv://nipuna21:<db_password>@cluster0.a9vxy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 // Initialize MongoDB client
+configurable string connectionString = "mongodb+srv://nipuna21:giselle123@cluster0.a9vxy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+// Initialize MongoDB client using the connection string
 final mongodb:Client mongoDb = check new ({
-    connection: {
-        serverAddress: {
-            host,
-            port
-        },
-        auth: <mongodb:ScramSha256AuthCredential>{
-            username,
-            password,
-            database
-        }
-    }
+    connection: connectionString
 });
 
 service / on new http:Listener(9091) {
