@@ -31,3 +31,4 @@ curl -X POST "http://localhost:9091/user" \
     "phone": "+987654321",
     "address": "123 Elm Street"
 }'
+test
