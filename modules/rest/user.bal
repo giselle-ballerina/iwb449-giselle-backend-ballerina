@@ -1,3 +1,4 @@
+import ballerina/io;
 import ballerinax/mongodb;
 
 public type User record {|
@@ -42,8 +43,22 @@ public isolated function getUsers(mongodb:Database ecommerceDb) returns User[]|e
 public isolated function insertUser(mongodb:Database ecommerceDb, User newUser) returns error? {
     mongodb:Collection usersCollection = check ecommerceDb->getCollection("users");
 
-    // Insert a single user document into the collection
-    check usersCollection->insertOne(newUser);
+    // Query to check if a user with the given userId already exists
+    map<json> filter = {"userId": newUser.userId};
+
+    // Create an empty FindOptions object, as required by the findOne function
+    mongodb:FindOptions findOptions = {};
+
+    // Check if the user exists in the database
+    User? existingUser = check usersCollection->findOne(filter, findOptions, (), User);
+
+    if existingUser is () {
+        // User does not exist, proceed with inserting the new user
+        check usersCollection->insertOne(newUser);
+    } else {
+        // Handle the case where the user already exists
+        io:print("User with userId " + newUser.userId + " already exists.");
+    }
 }
 
 public isolated function insertMultipleUsers(mongodb:Database ecommerceDb, User[] newUsers) returns error? {
