@@ -25,7 +25,7 @@ service / on new http:Listener(9091) {
     function init() returns error? {
 
         self.ecommerceDb = check mongoDb->getDatabase("ecommerce");
-
+        io:println("REST api running on port 9091");
         return;
     }
 
@@ -99,3 +99,4 @@ service / on new http:Listener(9091) {
         return rest:getOffers(self.ecommerceDb); // Call the imported function
     }
 }
+
