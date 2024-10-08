@@ -40,6 +40,28 @@ public isolated function getUsers(mongodb:Database ecommerceDb) returns User[]|e
         select u;
 }
 
+public isolated function getOneUser(mongodb:Database ecommerceDb, string userId) returns User|error {
+    // Get the "users" collection from the MongoDB database
+    mongodb:Collection usersCollection = check ecommerceDb->getCollection("users");
+
+    // Define the filter query to find the user by "userId"
+    map<json> filter = {"userId": userId};
+
+    // Define the options for the findOne operation
+    mongodb:FindOptions findOptions = {};
+
+    // Perform the findOne operation to get the single user
+    User? foundUser = check usersCollection->findOne(filter, findOptions, (), User);
+
+    if foundUser is () {
+        // Handle case where no user was found
+        return error("User with userId '" + userId + "' not found.");
+    } else {
+        // Return the found user
+        return foundUser;
+    }
+}
+
 public isolated function insertUser(mongodb:Database ecommerceDb, User newUser) returns error? {
     mongodb:Collection usersCollection = check ecommerceDb->getCollection("users");
 

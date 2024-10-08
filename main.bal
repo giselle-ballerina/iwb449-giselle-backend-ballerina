@@ -44,6 +44,20 @@ service / on new http:Listener(9091) {
         return rest:getUsers(self.ecommerceDb); // Call the imported function
     }
 
+    resource function get user/[string userId]() returns rest:User|error {
+        // Call the getOneUser function to retrieve the user from the database
+        rest:User|error result = rest:getOneUser(self.ecommerceDb, userId);
+
+        // Check if the result is an error or a valid user
+        if result is error {
+            // If an error occurred, return the error response
+            return error("User not found: " + result.message());
+        } else {
+            // Return the found user
+            return result;
+        }
+    }
+
     resource function post user(http:Request req) returns http:Response|error {
         // Extract the new user from the request payload
         json userJson = check req.getJsonPayload();
