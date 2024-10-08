@@ -36,7 +36,36 @@ service / on new http:Listener(9091) {
 
     // Resource function to get shops
     resource function get shops() returns rest:Shop[]|error {
-        return rest:getShops(self.ecommerceDb); // Call the imported function
+        return rest:getShops(self.ecommerceDb);
+    }
+
+    // Get a single shop by shopId
+    resource function get shop/[string shopId]() returns rest:Shop|error {
+        return rest:getOneShop(self.ecommerceDb, shopId);
+    }
+
+    // Insert a new shop
+    resource function post shop(http:Request req) returns http:Response|error {
+        json shopJson = check req.getJsonPayload();
+        rest:Shop newShop = check shopJson.cloneWithType(rest:Shop);
+        check rest:insertShop(self.ecommerceDb, newShop);
+
+        http:Response res = new;
+        res.setTextPayload("Shop inserted successfully");
+        return res;
+    }
+
+    // Update a shop by shopId
+    resource function put shop/[string shopId](http:Request req) returns http:Response|error {
+        json updates = check req.getJsonPayload();
+        if updates is map<json> {
+            check rest:updateShop(self.ecommerceDb, shopId, updates);
+            io:print("Shop updated successfully");
+        }
+
+        http:Response res = new;
+        res.setTextPayload("Shop updated successfully");
+        return res;
     }
 
     // Resource function to get users

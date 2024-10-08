@@ -32,3 +32,47 @@ curl -X POST "http://localhost:9091/user" \
     "address": "123 Elm Street"
 }'
 test
+
+curl -X POST http://localhost:9091/shop \
+-H "Content-Type: application/json" \
+-d '{
+    "shopId": "shop002",
+    "shopName": "ShopOne",
+    "owner": {
+        "name": "John Doe",
+        "userId": "user001",
+        "email": "john@example.com",
+        "phone": "+1122334455",
+        "address": "123 Main Street"
+    },
+    "description": "This is ShopOne",
+    "background": "white",
+    "color": {
+        "primary": "blue",
+        "secondary": "gray"
+    },
+    "font": {
+        "primary": "Arial",
+        "secondary": "Verdana"
+    },
+    "insights": [
+        {
+            "totalViews": 100,
+            "totalLikes": 50,
+            "totalShares": 10,
+            "totalOrders": 20,
+            "totalRevenue": 5000.50,
+            "totalProducts": 30
+        }
+    ]
+}'
+curl -X PUT http://localhost:9091/shop/shop001 \
+-H "Content-Type: application/json" \
+-d '{
+    "description": "Updated description for ShopOne",
+    "background": "lightgray",
+    "color": {
+        "primary": "green",
+        "secondary": "white"
+    }
+}'
