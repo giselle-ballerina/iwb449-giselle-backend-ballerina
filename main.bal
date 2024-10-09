@@ -44,6 +44,10 @@ service / on new http:Listener(9091) {
         return rest:getOneShop(self.ecommerceDb, shopId);
     }
 
+    resource function get shop/user/[string userId]() returns rest:Shop|error {
+        return rest:getOneShopByUser(self.ecommerceDb, userId);
+    }
+
     // Insert a new shop
     resource function post shop(http:Request req) returns http:Response|error {
         json shopJson = check req.getJsonPayload();
