@@ -38,7 +38,6 @@ service / on new graphql:Listener(9090) {
 
     // GraphQL query to get all users
     resource function get users() returns rest:User[]|error {
-
         return rest:getUsers(self.ecommerceDb);
     }
 
@@ -52,6 +51,13 @@ service / on new graphql:Listener(9090) {
         // io:println("Token: " + token);
         // check self.validateJwt(token);
         return rest:getOneUser(self.ecommerceDb, userId);
+    }
+
+    resource function get shops() returns rest:Shop[]|error {
+        return rest:getShops(self.ecommerceDb);
+    }
+    resource function  get shop(string shopId) returns rest:Shop|error {
+        return rest:getOneShop(self.ecommerceDb, shopId);
     }
 
     function validateJwt(string token) returns error? {
