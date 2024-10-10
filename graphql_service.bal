@@ -54,6 +54,21 @@ service / on new graphql:Listener(9090) {
         return rest:getOneUser(self.ecommerceDb, userId);
     }
 
+    resource function get shops() returns rest:Shop[]|error {
+        return rest:getShops(self.ecommerceDb);
+    }
+
+    // GraphQL query to get a single shop by shopId
+    resource function get shop(string shopId) returns rest:Shop|error {
+        return rest:getOneShop(self.ecommerceDb, shopId);
+    }
+
+    // GraphQL query to get shops by userId
+    resource function get shopsByUser(string userId) returns rest:Shop[]|error {
+        // Retrieve shops associated with the specified userId
+        return rest:getShopsByUser(self.ecommerceDb, userId);
+    }
+
     function validateJwt(string token) returns error? {
         // The token usually comes with a "Bearer " prefix, remove it before validation
         string jwt;

@@ -50,8 +50,9 @@ service / on new http:Listener(9091) {
         rest:Shop newShop = check shopJson.cloneWithType(rest:Shop);
         check rest:insertShop(self.ecommerceDb, newShop);
 
+        json responseJson = {"success": true, "message": "User inserted successfully"};
         http:Response res = new;
-        res.setTextPayload("Shop inserted successfully");
+        res.setJsonPayload(responseJson);
         return res;
     }
 
@@ -95,9 +96,10 @@ service / on new http:Listener(9091) {
         // Call the insert function to add the user to the database
         check rest:insertUser(self.ecommerceDb, newUser);
 
-        // Return a success response
+        json responseJson = {"success": true, "message": "User inserted successfully"};
         http:Response res = new;
-        res.setTextPayload("User inserted successfully");
+        res.setJsonPayload(responseJson);
+
         return res;
     }
 
