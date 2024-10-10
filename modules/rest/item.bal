@@ -1,5 +1,5 @@
-import ballerinax/mongodb;
 import ballerina/io;
+import ballerinax/mongodb;
 
 public type Item record {|
     string itemId;
@@ -51,6 +51,8 @@ public isolated function insertItem(mongodb:Database ecommerceDb, Item newItem) 
     mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
 
     // Query to check if an item with the given itemId already exists
+    io:print("newItem.itemId: " + newItem.itemId);
+    // check itemsCollection->insertOne(newItem);
     map<json> filter = {"itemId": newItem.itemId};
 
     // Create an empty FindOptions object, as required by the findOne function

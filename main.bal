@@ -119,11 +119,11 @@ service / on new http:Listener(9091) {
         return res;
     }
 
-        resource function get purchases() returns rest:Purchase[]|error {
+    resource function get purchases() returns rest:Purchase[]|error {
         return rest:getPurchases(self.ecommerceDb); // Call the imported function
     }
 
-        resource function get purchase/[string purchaseId]() returns rest:Purchase|error {
+    resource function get purchase/[string purchaseId]() returns rest:Purchase|error {
         // Call the getOnePurchase function to retrieve the purchase from the database
         rest:Purchase|error result = rest:getOnePurchase(self.ecommerceDb, purchaseId);
 
@@ -167,21 +167,21 @@ service / on new http:Listener(9091) {
         return res;
     }
 
-
     // Resource function to get offers
     resource function get offers() returns rest:Offer[]|error {
         return rest:getOffers(self.ecommerceDb); // Call the imported function
     }
+
     resource function get offer/[string offerId]() returns rest:Offer|error {
         // Call the getOneOffer function to retrieve the offer from the database
         rest:Offer|error result = rest:getOneOffer(self.ecommerceDb, offerId);
 
         // Check if the result is an error or a valid offer
         if result is error {
-        // If an error occurred, return the error response
+            // If an error occurred, return the error response
             return error("Offer not found: " + result.message());
         } else {
-        // Return the found offer
+            // Return the found offer
             return result;
         }
     }
@@ -216,21 +216,21 @@ service / on new http:Listener(9091) {
         return res;
     }
 
-
     resource function get items() returns rest:Item[]|error {
         return rest:getItems(self.ecommerceDb); // Call the imported function
     }
+
     resource function get item/[string itemId]() returns rest:Item|error {
         // Call the getOneItem function to retrieve the item from the database
         rest:Item|error result = rest:getOneItem(self.ecommerceDb, itemId);
 
         // Check if the result is an error or a valid item
         if result is error {
-        // If an error occurred, return the error response
-        return error("Item not found: " + result.message());
+            // If an error occurred, return the error response
+            return error("Item not found: " + result.message());
         } else {
-        // Return the found item
-        return result;
+            // Return the found item
+            return result;
         }
     }
 
@@ -266,3 +266,29 @@ service / on new http:Listener(9091) {
 
 }
 
+// curl -X POST "http://localhost:9091/item" -H "Content-Type: application/json" -d '{
+//   "itemId": "item123",
+//   "shopId": "shop456",
+//   "price": 19.99,
+//   "tags": ["tag1", "tag2"],
+//   "productName": "Product Name",
+//   "varients": [{"color": "red", "size": "M", "qty": 10}],
+//   "description": "Description",
+//   "brand": "Brand"
+// }'
+// public type Item record {|
+//     string itemId;
+//     string shopId;
+//     decimal price;
+//     string[] tags;
+//     string productName;
+//     Varient[]? varients;
+//     string? description;
+//     string? brand;
+// |};
+
+// public type Varient record {|
+//     string color;
+//     string size;
+//     int qty;
+// |};
