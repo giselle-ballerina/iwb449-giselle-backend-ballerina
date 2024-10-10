@@ -29,11 +29,6 @@ service / on new http:Listener(9091) {
         return;
     }
 
-    // Resource function to get items
-    resource function get items() returns rest:Item[]|error {
-        return rest:getItems(self.ecommerceDb); // Call the imported function
-    }
-
     // Resource function to get shops
     resource function get shops() returns rest:Shop[]|error {
         return rest:getShops(self.ecommerceDb);
@@ -124,14 +119,150 @@ service / on new http:Listener(9091) {
         return res;
     }
 
-    // Resource function to get purchases
-    resource function get purchases() returns rest:Purchase[]|error {
+        resource function get purchases() returns rest:Purchase[]|error {
         return rest:getPurchases(self.ecommerceDb); // Call the imported function
     }
+
+        resource function get purchase/[string purchaseId]() returns rest:Purchase|error {
+        // Call the getOnePurchase function to retrieve the purchase from the database
+        rest:Purchase|error result = rest:getOnePurchase(self.ecommerceDb, purchaseId);
+
+        // Check if the result is an error or a valid purchase
+        if result is error {
+            // If an error occurred, return the error response
+            return error("Purchase not found: " + result.message());
+        } else {
+            // Return the found purchase
+            return result;
+        }
+    }
+
+    resource function post purchase(http:Request req) returns http:Response|error {
+        // Extract the new purchase from the request payload
+        json purchaseJson = check req.getJsonPayload();
+        rest:Purchase newPurchase = check purchaseJson.cloneWithType(rest:Purchase);
+
+        // Call the insert function to add the purchase to the database
+        check rest:insertPurchase(self.ecommerceDb, newPurchase);
+
+        // Return a success response
+        http:Response res = new;
+        res.setTextPayload("Purchase inserted successfully");
+        return res;
+    }
+
+    resource function put purchase/[string purchaseId](http:Request req) returns http:Response|error {
+        // Extract the updates from the request payload
+        json updates = check req.getJsonPayload();
+        if updates is map<json> {
+            // It's already a map<json>, so use it directly
+            map<json> purchaseMap = updates;
+            // Call the update function to modify the purchase's data
+            check rest:updatePurchase(self.ecommerceDb, purchaseId, purchaseMap);
+            io:print("Purchase updated successfully");
+        }
+        // Return a success response
+        http:Response res = new;
+        res.setTextPayload("Purchase updated successfully");
+        return res;
+    }
+
 
     // Resource function to get offers
     resource function get offers() returns rest:Offer[]|error {
         return rest:getOffers(self.ecommerceDb); // Call the imported function
     }
+    resource function get offer/[string offerId]() returns rest:Offer|error {
+        // Call the getOneOffer function to retrieve the offer from the database
+        rest:Offer|error result = rest:getOneOffer(self.ecommerceDb, offerId);
+
+        // Check if the result is an error or a valid offer
+        if result is error {
+        // If an error occurred, return the error response
+            return error("Offer not found: " + result.message());
+        } else {
+        // Return the found offer
+            return result;
+        }
+    }
+
+    resource function post offer(http:Request req) returns http:Response|error {
+        // Extract the new offer from the request payload
+        json offerJson = check req.getJsonPayload();
+        rest:Offer newOffer = check offerJson.cloneWithType(rest:Offer);
+
+        // Call the insert function to add the offer to the database
+        check rest:insertOffer(self.ecommerceDb, newOffer);
+
+        // Return a success response
+        http:Response res = new;
+        res.setTextPayload("Offer inserted successfully");
+        return res;
+    }
+
+    resource function put offer/[string offerId](http:Request req) returns http:Response|error {
+        // Extract the updates from the request payload
+        json updates = check req.getJsonPayload();
+        if updates is map<json> {
+            // It's already a map<json>, so use it directly
+            map<json> offerMap = updates;
+            // Call the update function to modify the offer's data
+            check rest:updateOffer(self.ecommerceDb, offerId, offerMap);
+            io:print("Offer updated successfully");
+        }
+        // Return a success response
+        http:Response res = new;
+        res.setTextPayload("Offer updated successfully");
+        return res;
+    }
+
+
+    resource function get items() returns rest:Item[]|error {
+        return rest:getItems(self.ecommerceDb); // Call the imported function
+    }
+    resource function get item/[string itemId]() returns rest:Item|error {
+        // Call the getOneItem function to retrieve the item from the database
+        rest:Item|error result = rest:getOneItem(self.ecommerceDb, itemId);
+
+        // Check if the result is an error or a valid item
+        if result is error {
+        // If an error occurred, return the error response
+        return error("Item not found: " + result.message());
+        } else {
+        // Return the found item
+        return result;
+        }
+    }
+
+    resource function post item(http:Request req) returns http:Response|error {
+        // Extract the new item from the request payload
+        json itemJson = check req.getJsonPayload();
+        rest:Item newItem = check itemJson.cloneWithType(rest:Item);
+
+        // Call the insert function to add the item to the database
+        check rest:insertItem(self.ecommerceDb, newItem);
+
+        // Return a success response
+        http:Response res = new;
+        res.setTextPayload("Item inserted successfully");
+        return res;
+    }
+
+    resource function put item/[string itemId](http:Request req) returns http:Response|error {
+        // Extract the updates from the request payload
+        json updates = check req.getJsonPayload();
+        if updates is map<json> {
+            // It's already a map<json>, so use it directly
+            map<json> itemMap = updates;
+            // Call the update function to modify the item's data
+            check rest:updateItem(self.ecommerceDb, itemId, itemMap);
+            io:print("Item updated successfully");
+        }
+        // Return a success response
+        http:Response res = new;
+        res.setTextPayload("Item updated successfully");
+        return res;
+    }
+
 }
 

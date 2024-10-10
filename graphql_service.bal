@@ -53,6 +53,39 @@ service / on new graphql:Listener(9090) {
         // check self.validateJwt(token);
         return rest:getOneUser(self.ecommerceDb, userId);
     }
+    resource function get items() returns rest:Item[]|error {
+    return rest:getItems(self.ecommerceDb);
+    }
+
+    resource function get item(string itemId) returns rest:Item|error {
+    // Call the getOneItem function to retrieve the item from the database
+    return rest:getOneItem(self.ecommerceDb, itemId);
+    }
+
+    resource function get offers() returns rest:Offer[]|error {
+    return rest:getOffers(self.ecommerceDb);
+    
+    }
+
+    resource function get offer(string offerId) returns rest:Offer|error {
+    // Call the getOneOffer function to retrieve the offer from the database
+    return rest:getOneOffer(self.ecommerceDb, offerId);
+    
+    }
+
+    resource function get purchases() returns rest:Purchase[]|error {
+    return rest:getPurchases(self.ecommerceDb);
+    
+    }
+
+    resource function get purchase(string purchaseId) returns rest:Purchase|error {
+    // Call the getOnePurchase function to retrieve the purchase from the database
+    return rest:getOnePurchase(self.ecommerceDb, purchaseId);
+    
+    }
+
+
+
 
     resource function get shops() returns rest:Shop[]|error {
         return rest:getShops(self.ecommerceDb);
