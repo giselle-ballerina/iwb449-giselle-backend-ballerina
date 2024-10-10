@@ -64,9 +64,9 @@ service / on new graphql:Listener(9090) {
     }
 
     // GraphQL query to get shops by userId
-    resource function get shopsByUser(string userId) returns rest:Shop[]|error {
+    resource function get shopByUser(string userId) returns rest:Shop|error {
         // Retrieve shops associated with the specified userId
-        return rest:getShopsByUser(self.ecommerceDb, userId);
+        return rest:getOneShopByUser(self.ecommerceDb, userId);
     }
 
     function validateJwt(string token) returns error? {
