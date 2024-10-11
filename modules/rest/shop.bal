@@ -63,6 +63,21 @@ public isolated function getOneShop(mongodb:Database ecommerceDb, string shopId)
     }
 }
 
+public isolated function getOneShopByUser(mongodb:Database ecommerceDb, string userId) returns Shop|error {
+    mongodb:Collection shopsCollection = check ecommerceDb->getCollection("shops");
+
+    map<json> filter = {"owner.userId": userId};
+    mongodb:FindOptions findOptions = {};
+
+    Shop? foundShop = check shopsCollection->findOne(filter, findOptions, (), Shop);
+
+    if foundShop is () {
+        return error("Shop with shopId '" + userId + "' not found.");
+    } else {
+        return foundShop;
+    }
+}
+
 // Insert a new shop
 public isolated function insertShop(mongodb:Database ecommerceDb, Shop newShop) returns error? {
     mongodb:Collection shopsCollection = check ecommerceDb->getCollection("shops");
