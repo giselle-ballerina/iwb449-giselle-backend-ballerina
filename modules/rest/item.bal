@@ -50,24 +50,9 @@ public isolated function getOneItem(mongodb:Database ecommerceDb, string itemId)
 public isolated function insertItem(mongodb:Database ecommerceDb, Item newItem) returns error? {
     mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
 
-    // Query to check if an item with the given itemId already exists
-    io:print("newItem.itemId: " + newItem.itemId);
-    // check itemsCollection->insertOne(newItem);
-    map<json> filter = {"itemId": newItem.itemId};
-
-    // Create an empty FindOptions object, as required by the findOne function
-    mongodb:FindOptions findOptions = {};
-
-    // Check if the item exists in the database
-    Item? existingItem = check itemsCollection->findOne(filter, findOptions, (), Item);
-
-    if existingItem is () {
-        // Item does not exist, proceed with inserting the new item
-        check itemsCollection->insertOne(newItem);
-    } else {
-        // Handle the case where the item already exists
-        io:print("Item with itemId " + newItem.itemId + " already exists.");
-    }
+    
+    check itemsCollection->insertOne(newItem);
+   
 }
 
 public isolated function insertMultipleItems(mongodb:Database ecommerceDb, Item[] newItems) returns error? {
