@@ -26,6 +26,11 @@ jwt:ValidatorConfig validatorConfig = {
     }
 }
 
+@graphql:ServiceConfig {
+    graphiql: {
+        enabled: true
+    }
+}
 service / on new graphql:Listener(9090) {
 
     private final mongodb:Database ecommerceDb;
@@ -83,9 +88,6 @@ service / on new graphql:Listener(9090) {
     
     }
 
-
-
-
     resource function get shops() returns rest:Shop[]|error {
         return rest:getShops(self.ecommerceDb);
     }
@@ -100,14 +102,7 @@ service / on new graphql:Listener(9090) {
         // Retrieve shops associated with the specified userId
         return rest:getOneShopByUser(self.ecommerceDb, userId);
     }
-
-    resource function get shops() returns rest:Shop[]|error {
-        return rest:getShops(self.ecommerceDb);
-    }
-    resource function  get shop(string shopId) returns rest:Shop|error {
-        return rest:getOneShop(self.ecommerceDb, shopId);
-    }
-
+    
     function validateJwt(string token) returns error? {
         // The token usually comes with a "Bearer " prefix, remove it before validation
         string jwt;
