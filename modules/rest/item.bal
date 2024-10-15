@@ -1,4 +1,4 @@
-import ballerina/io;
+
 import ballerinax/mongodb;
 
 public type Item record {|
@@ -8,6 +8,7 @@ public type Item record {|
     string[] tags;
     string productName;
     Varient[]? varients;
+    string[]? images;
     string? description;
     string? brand;
 |};
