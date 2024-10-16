@@ -43,6 +43,9 @@ service / on new http:Listener(9091) {
         return rest:getOneShopByUser(self.ecommerceDb, userId);
     }
 
+    resource function get item/shop/[string shopId]() returns rest:Item[]|error {
+        return rest:filterItemsbyShop(self.ecommerceDb, shopId);
+    }
     // Insert a new shop
     resource function post shop(http:Request req) returns http:Response|error {
         json shopJson = check req.getJsonPayload();
@@ -54,6 +57,7 @@ service / on new http:Listener(9091) {
         res.setJsonPayload(responseJson);
         return res;
     }
+
 
     // Update a shop by shopId
     resource function put shop/[string shopId](http:Request req) returns http:Response|error {

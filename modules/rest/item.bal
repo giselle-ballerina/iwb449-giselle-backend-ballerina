@@ -47,6 +47,53 @@ public isolated function getOneItem(mongodb:Database ecommerceDb, string itemId)
     }
 }
 
+public isolated function getOneItem2(mongodb:Database ecommerceDb, string shopId) returns Item|error {
+    // Get the "items" collection from the MongoDB database
+    mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
+
+    // Define the filter query to find the item by "itemId"
+    map<json> filter = {"itemId": shopId};
+
+    // Define the options for the findOne operation
+    mongodb:FindOptions findOptions = {};
+
+    // Perform the findOne operation to get the single item
+    Item? foundItem = check itemsCollection->findOne(filter, findOptions, (), Item);
+
+    if foundItem is () {
+        // Handle case where no item was found
+        return error("Item with itemId '" + shopId + "' not found.");
+    } else {
+        // Return the found item
+        return foundItem;
+    }
+}
+public isolated function filterItemsbyShop(mongodb:Database ecommerceDb, string shopId )returns Item[]|error{
+    io:print("in item folder");
+    mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
+    map<json> filter = {"shopId": shopId};
+    mongodb:FindOptions findOptions = {};
+    stream<Item, error?> itemStream = check itemsCollection->find(filter, findOptions, (), Item);
+    Item[] items = [];
+    
+    check from var item in itemStream
+        do {
+            items.push(item);
+    };
+    io:print(items, "items here ");
+    // return from Item s in itemStream
+    //     select s;
+        
+    // Check if no items were found
+    if items.length() == 0 {
+        return error("No items found for the shopId: " + shopId);
+    }
+    // Return the found items
+    return items;
+
+}
+
+
 public isolated function insertItem(mongodb:Database ecommerceDb, Item newItem) returns error? {
     mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
 

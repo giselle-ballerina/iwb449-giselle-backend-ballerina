@@ -102,6 +102,10 @@ service / on new graphql:Listener(9090) {
         // Retrieve shops associated with the specified userId
         return rest:getOneShopByUser(self.ecommerceDb, userId);
     }
+
+    resource function get itemsByShop(string shopId) returns rest:Item[]|error {
+        return rest:filterItemsbyShop(self.ecommerceDb, shopId);
+    }
     
     function validateJwt(string token) returns error? {
         // The token usually comes with a "Bearer " prefix, remove it before validation
