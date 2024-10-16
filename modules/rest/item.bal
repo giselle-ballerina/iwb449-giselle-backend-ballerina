@@ -130,10 +130,6 @@ public isolated function filterItemsbyPrice(mongodb:Database ecommerceDb, decima
             items.push(item);
     };
     io:print(items, "items here ");
-    // return from Item s in itemStream
-    //     select s;
-        
-    // Check if no items were found
     if items.length() == 0 {
         return error("No items found for the price range");
     }
