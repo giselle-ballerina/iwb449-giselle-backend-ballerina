@@ -42,10 +42,7 @@ service / on new http:Listener(9091) {
     resource function get shop/user/[string userId]() returns rest:Shop|error {
         return rest:getOneShopByUser(self.ecommerceDb, userId);
     }
-
-    resource function get item/shop/[string shopId]() returns rest:Item[]|error {
-        return rest:filterItemsbyShop(self.ecommerceDb, shopId);
-    }
+ 
     // Insert a new shop
     resource function post shop(http:Request req) returns http:Response|error {
         json shopJson = check req.getJsonPayload();
@@ -57,6 +54,7 @@ service / on new http:Listener(9091) {
         res.setJsonPayload(responseJson);
         return res;
     }
+    
 
 
     // Update a shop by shopId
@@ -238,6 +236,35 @@ service / on new http:Listener(9091) {
         }
     }
 
+    
+    resource function get item/shop/[string shopId]() returns rest:Item[]|error {
+        // Call the getOneItem function to retrieve the item from the database
+        rest:Item[]|error result = rest:getItemsByShop(self.ecommerceDb, shopId);
+
+        // Check if the result is an error or a valid item
+        if result is error {
+            // If an error occurred, return the error response
+            return error("Item not found: " + result.message());
+        } else {
+            // Return the found item
+            return result;
+        }
+    }
+
+    resource function get item/price/[decimal priceUpperBound]/[decimal priceLowerBound]() returns rest:Item[]|error {
+        // Call the getOneItem function to retrieve the item from the database
+        rest:Item[]|error result = rest:filterItemsbyPrice(self.ecommerceDb, priceLowerBound, priceUpperBound);
+
+        // Check if the result is an error or a valid item
+        if result is error {
+            // If an error occurred, return the error response
+            return error("Item not found: " + result.message());
+        } else {
+            // Return the found item
+            return result;
+        }
+    }
+
     resource function post item(http:Request req) returns http:Response|error {
         // Extract the new item from the request payload
         json itemJson = check req.getJsonPayload();
@@ -267,6 +294,24 @@ service / on new http:Listener(9091) {
         res.setTextPayload("Item updated successfully");
         return res;
     }
+
+    // resource function post test(http:Request req) returns http:Response|error {
+    //     // Extract the new user from the request payload
+    //     json userJson = check req.getJsonPayload();
+    //     rest:Test newUser = check userJson.cloneWithType(rest:Test);
+
+    //     // Call the insert function to add the user to the database
+    //     check rest:insertTest(self.ecommerceDb, newUser);
+
+    //     json responseJson = {"success": true, "message": "Test inserted successfully"};
+    //     http:Response res = new;
+    //     res.setJsonPayload(responseJson);
+
+    //     return res;
+    // }
+    //     resource function get test() returns rest:Test[]|error {
+    //     return rest:getTests(self.ecommerceDb); // Call the imported function
+    // }
 
 }
 

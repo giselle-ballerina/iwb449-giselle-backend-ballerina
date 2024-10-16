@@ -60,7 +60,13 @@ service / on new graphql:Listener(9090) {
     resource function get items() returns rest:Item[]|error {
     return rest:getItems(self.ecommerceDb);
     }
+    resource function get itemsByShop(string shopId) returns rest:Item[]|error {
+    return rest:filterItemsbyShop(self.ecommerceDb, shopId );
+    }
 
+    resource function get itemsByPrice(decimal priceLowerBound, decimal priceUpperBound) returns rest:Item[]|error {
+        return rest:filterItemsbyPrice(self.ecommerceDb, priceLowerBound, priceUpperBound);
+    }
     resource function get item(string itemId) returns rest:Item|error {
     // Call the getOneItem function to retrieve the item from the database
     return rest:getOneItem(self.ecommerceDb, itemId);
@@ -103,9 +109,7 @@ service / on new graphql:Listener(9090) {
         return rest:getOneShopByUser(self.ecommerceDb, userId);
     }
 
-    resource function get itemsByShop(string shopId) returns rest:Item[]|error {
-        return rest:filterItemsbyShop(self.ecommerceDb, shopId);
-    }
+    
     
     function validateJwt(string token) returns error? {
         // The token usually comes with a "Bearer " prefix, remove it before validation

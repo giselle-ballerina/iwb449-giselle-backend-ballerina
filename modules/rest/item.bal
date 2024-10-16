@@ -1,21 +1,30 @@
-import ballerina/io;
-import ballerinax/mongodb;
 
+import ballerinax/mongodb;
+import ballerina/io;
 public type Item record {|
     string itemId;
     string shopId;
     decimal price;
-    string[] tags;
     string productName;
-    Varient[]? varients;
+  
     string? description;
     string? brand;
+      Tag[]? tags;
+    
+    Varient[]? varients;
+    Image[]? images;
 |};
 
 public type Varient record {|
     string color;
     string size;
     int qty;
+|};
+public type Tag record {|
+    string name;
+|};
+public type Image record {|
+    string url;
 |};
 
 public isolated function getItems(mongodb:Database ecommerceDb) returns Item[]|error {
@@ -46,28 +55,43 @@ public isolated function getOneItem(mongodb:Database ecommerceDb, string itemId)
         return foundItem;
     }
 }
-
-public isolated function getOneItem2(mongodb:Database ecommerceDb, string shopId) returns Item|error {
+public isolated function getItemsByShop(mongodb:Database ecommerceDb, string shopId) returns Item[]|error {
     // Get the "items" collection from the MongoDB database
     mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
 
-    // Define the filter query to find the item by "itemId"
-    map<json> filter = {"itemId": shopId};
-
-    // Define the options for the findOne operation
+    // Define the filter query to find the items by "shopId"
+    map<json> filter = {"shopId": shopId};
     mongodb:FindOptions findOptions = {};
+    stream<Item, error?> foundItemsStream = check itemsCollection->find(filter, findOptions, (), Item);
+    Item[] foundItems = [];
 
-    // Perform the findOne operation to get the single item
-    Item? foundItem = check itemsCollection->findOne(filter, findOptions, (), Item);
-
-    if foundItem is () {
-        // Handle case where no item was found
-        return error("Item with itemId '" + shopId + "' not found.");
-    } else {
-        // Return the found item
-        return foundItem;
+    // Iterate through the stream manually
+    while true {
+        var result = foundItemsStream.next();
+        if result is record {| Item value; |} {
+            // Add the item to the array
+            foundItems.push(result.value);
+        } else if result is error {
+            // Handle any errors that occur while iterating
+            return result;
+        } else {
+            // Stream has ended, break the loop
+            break;
+        }
     }
+
+    // Close the stream after processing
+    check foundItemsStream.close();
+
+    // Check if no items were found
+    if foundItems.length() == 0 {
+        return error("No items found for shopId '" + shopId + "'");
+    }
+
+    // Return the array of found items
+    return foundItems;
 }
+
 public isolated function filterItemsbyShop(mongodb:Database ecommerceDb, string shopId )returns Item[]|error{
     io:print("in item folder");
     mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
@@ -93,28 +117,35 @@ public isolated function filterItemsbyShop(mongodb:Database ecommerceDb, string 
 
 }
 
-
+public isolated function filterItemsbyPrice(mongodb:Database ecommerceDb, decimal priceLowerBound, decimal priceUpperBound)returns Item[]|error{
+    io:print("in item folder");
+    mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
+    map<json> filter = {"price": {"$gte": priceLowerBound, "$lte": priceUpperBound}};
+    mongodb:FindOptions findOptions = {};
+    stream<Item, error?> itemStream = check itemsCollection->find(filter, findOptions, (), Item);
+    Item[] items = [];
+    
+    check from var item in itemStream
+        do {
+            items.push(item);
+    };
+    io:print(items, "items here ");
+    // return from Item s in itemStream
+    //     select s;
+        
+    // Check if no items were found
+    if items.length() == 0 {
+        return error("No items found for the price range");
+    }
+    // Return the found items
+    return items;
+}
 public isolated function insertItem(mongodb:Database ecommerceDb, Item newItem) returns error? {
     mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
-
-    // Query to check if an item with the given itemId already exists
-    io:print("newItem.itemId: " + newItem.itemId);
-    // check itemsCollection->insertOne(newItem);
-    map<json> filter = {"itemId": newItem.itemId};
-
-    // Create an empty FindOptions object, as required by the findOne function
-    mongodb:FindOptions findOptions = {};
-
-    // Check if the item exists in the database
-    Item? existingItem = check itemsCollection->findOne(filter, findOptions, (), Item);
-
-    if existingItem is () {
-        // Item does not exist, proceed with inserting the new item
-        check itemsCollection->insertOne(newItem);
-    } else {
-        // Handle the case where the item already exists
-        io:print("Item with itemId " + newItem.itemId + " already exists.");
-    }
+    io:print(newItem);
+    
+    check itemsCollection->insertOne(newItem);
+   
 }
 
 public isolated function insertMultipleItems(mongodb:Database ecommerceDb, Item[] newItems) returns error? {
