@@ -9,16 +9,22 @@ public type Item record {|
   
     string? description;
     string? brand;
-      string[]? tags;
+      Tag[]? tags;
     
     Varient[]? varients;
-    string[]? images;
+    Image[]? images;
 |};
 
 public type Varient record {|
     string color;
     string size;
     int qty;
+|};
+public type Tag record {|
+    string name;
+|};
+public type Image record {|
+    string url;
 |};
 
 public isolated function getItems(mongodb:Database ecommerceDb) returns Item[]|error {
