@@ -56,7 +56,9 @@ service / on new graphql:Listener(9090) {
     resource function get items() returns rest:Item[]|error {
     return rest:getItems(self.ecommerceDb);
     }
-
+    resource function get itemsByShop(string shopId) returns rest:Item[]|error {
+    return rest:getItemsByShop(self.ecommerceDb, shopId );
+    }
     resource function get item(string itemId) returns rest:Item|error {
     // Call the getOneItem function to retrieve the item from the database
     return rest:getOneItem(self.ecommerceDb, itemId);

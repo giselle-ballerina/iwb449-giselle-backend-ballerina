@@ -43,6 +43,7 @@ service / on new http:Listener(9091) {
         return rest:getOneShopByUser(self.ecommerceDb, userId);
     }
 
+
     // Insert a new shop
     resource function post shop(http:Request req) returns http:Response|error {
         json shopJson = check req.getJsonPayload();
@@ -233,6 +234,19 @@ service / on new http:Listener(9091) {
             return result;
         }
     }
+    // resource function get item/shop/[string shopId]() returns rest:Item[]|error {
+    //     // Call the getOneItem function to retrieve the item from the database
+    //     rest:Item[]|error result = rest:getItemsByShop(self.ecommerceDb, shopId);
+
+    //     // Check if the result is an error or a valid item
+    //     if result is error {
+    //         // If an error occurred, return the error response
+    //         return error("Item not found: " + result.message());
+    //     } else {
+    //         // Return the found item
+    //         return result;
+    //     }
+    // }
 
     resource function post item(http:Request req) returns http:Response|error {
         // Extract the new item from the request payload

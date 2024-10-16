@@ -1,16 +1,18 @@
 
 import ballerinax/mongodb;
-
+import ballerina/io;
 public type Item record {|
     string itemId;
     string shopId;
     decimal price;
-    string[] tags;
     string productName;
-    Varient[]? varients;
-    string[]? images;
+  
     string? description;
     string? brand;
+      string[]? tags;
+    
+    Varient[]? varients;
+    string[]? images;
 |};
 
 public type Varient record {|
@@ -47,10 +49,48 @@ public isolated function getOneItem(mongodb:Database ecommerceDb, string itemId)
         return foundItem;
     }
 }
+public isolated function getItemsByShop(mongodb:Database ecommerceDb, string shopId) returns Item[]|error {
+    // Get the "items" collection from the MongoDB database
+    mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
+
+    // Define the filter query to find the items by "shopId"
+    map<json> filter = {"shopId": shopId};
+    mongodb:FindOptions findOptions = {};
+    stream<Item, error?> foundItemsStream = check itemsCollection->find(filter, findOptions, (), Item);
+    Item[] foundItems = [];
+
+    // Iterate through the stream manually
+    while true {
+        var result = foundItemsStream.next();
+        if result is record {| Item value; |} {
+            // Add the item to the array
+            foundItems.push(result.value);
+        } else if result is error {
+            // Handle any errors that occur while iterating
+            return result;
+        } else {
+            // Stream has ended, break the loop
+            break;
+        }
+    }
+
+    // Close the stream after processing
+    check foundItemsStream.close();
+
+    // Check if no items were found
+    if foundItems.length() == 0 {
+        return error("No items found for shopId '" + shopId + "'");
+    }
+
+    // Return the array of found items
+    return foundItems;
+}
+
+
 
 public isolated function insertItem(mongodb:Database ecommerceDb, Item newItem) returns error? {
     mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
-
+    io:print(newItem);
     
     check itemsCollection->insertOne(newItem);
    
