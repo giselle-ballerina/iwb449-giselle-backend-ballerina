@@ -18,7 +18,7 @@ configurable string connectionString = "mongodb+srv://nipuna21:giselle123@cluste
 final mongodb:Client mongoDb = check new ({
     connection: connectionString
 });
-
+SearchServiceClient ep = check new ("http://localhost:50051");
 service / on new http:Listener(9091) {
     private final mongodb:Database ecommerceDb;
 
@@ -122,6 +122,10 @@ service / on new http:Listener(9091) {
     }
 
     resource function get purchases() returns rest:Purchase[]|error {
+          io:print("Search service client running\n");
+    QueryRequest performSearchRequest = {query: "ballerina", top_k: 1};
+    SearchResponse performSearchResponse = check ep->PerformSearch(performSearchRequest);
+    io:println(performSearchResponse);
         return rest:getPurchases(self.ecommerceDb); // Call the imported function
     }
 

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 service SearchService {
-    rpc PerformSearch(QueryRequest) returns (SearchResponse);
+    rpc PerformSearch (QueryRequest) returns (SearchResponse);
 }
 
 message QueryRequest {
