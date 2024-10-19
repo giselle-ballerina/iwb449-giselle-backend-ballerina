@@ -1,0 +1,136 @@
+type Query {
+  users: [User!]!
+  user(userId: String!): User!
+  items: [Item!]!
+  item(itemId: String!): Item!
+  offers: [Offer!]!
+  offer(offerId: String!): Offer!
+  purchases: [Purchase!]!
+  purchase(purchaseId: String!): Purchase!
+  shops: [Shop!]!
+  shop(shopId: String!): Shop!
+  shopByUser(userId: String!): Shop!
+}
+
+type User {
+  userId: String!
+  name: String!
+  email: String!
+  phone: String
+  address: String
+  orders: [Order!]
+  cart: [CartItem!]
+  wishlist: [WishlistItem!]
+  notifications: [Notification!]
+}
+
+type Order {
+  orderId: String!
+}
+
+type CartItem {
+  itemId: String!
+  itemPrice: Decimal!
+}
+
+"The `Decimal` type corresponds to a subset of IEEE 754-2008 128-bit decimal (radix 10) floating point numbers"
+scalar Decimal
+
+type WishlistItem {
+  itemId: String!
+}
+
+type Notification {
+  notificationId: String!
+  notificationText: String!
+  notificationDate: String!
+  notificationType: String!
+}
+
+type Item {
+  itemId: String!
+  shopId: String!
+  price: Decimal!
+  tags: [String!]!
+  productName: String!
+  varients: [Varient!]
+  description: String
+  brand: String
+}
+
+type Varient {
+  color: String!
+  size: String!
+  qty: Int!
+}
+
+type Offer {
+  offerId: String!
+  shopId: String!
+  offerText: String!
+  offerStartDate: String!
+  offerEndDate: String!
+  offerDiscount: Decimal!
+  offerCode: String
+  offerStatus: String
+  bannerImage: String
+}
+
+type Purchase {
+  purchaseId: String!
+  userId: String!
+  shopId: String!
+  items: [PurchaseItem!]!
+  totalAmount: Decimal!
+  purchaseDate: String!
+  deliveryDate: String
+  deliveryAddress: String
+  paymentMethod: String
+  paymentStatus: String
+  deliveryStatus: String
+}
+
+type PurchaseItem {
+  itemId: String!
+  itemPrice: Decimal!
+  itemQty: Int!
+}
+
+type Shop {
+  shopId: String!
+  shopName: String!
+  owner: Owner!
+  description: String
+  background: String
+  color: Color
+  logo: String
+  font: Font
+  insights: [Insight!]
+}
+
+type Owner {
+  name: String!
+  email: String!
+  userId: String!
+  phone: String
+  address: String
+}
+
+type Color {
+  primary: String!
+  secondary: String!
+}
+
+type Font {
+  primary: String!
+  secondary: String!
+}
+
+type Insight {
+  totalViews: Int!
+  totalLikes: Int!
+  totalShares: Int!
+  totalOrders: Int!
+  totalRevenue: Decimal!
+  totalProducts: Int!
+}

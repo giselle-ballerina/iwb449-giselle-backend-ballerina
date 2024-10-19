@@ -26,6 +26,11 @@ jwt:ValidatorConfig validatorConfig = {
     }
 }
 
+@graphql:ServiceConfig {
+    graphiql: {
+        enabled: true
+    }
+}
 service / on new graphql:Listener(9090) {
 
     private final mongodb:Database ecommerceDb;
@@ -38,7 +43,6 @@ service / on new graphql:Listener(9090) {
 
     // GraphQL query to get all users
     resource function get users() returns rest:User[]|error {
-
         return rest:getUsers(self.ecommerceDb);
     }
 
@@ -57,7 +61,11 @@ service / on new graphql:Listener(9090) {
     return rest:getItems(self.ecommerceDb);
     }
     resource function get itemsByShop(string shopId) returns rest:Item[]|error {
-    return rest:getItemsByShop(self.ecommerceDb, shopId );
+    return rest:filterItemsbyShop(self.ecommerceDb, shopId );
+    }
+
+    resource function get itemsByPrice(decimal priceLowerBound, decimal priceUpperBound) returns rest:Item[]|error {
+        return rest:filterItemsbyPrice(self.ecommerceDb, priceLowerBound, priceUpperBound);
     }
     resource function get item(string itemId) returns rest:Item|error {
     // Call the getOneItem function to retrieve the item from the database
@@ -86,9 +94,6 @@ service / on new graphql:Listener(9090) {
     
     }
 
-
-
-
     resource function get shops() returns rest:Shop[]|error {
         return rest:getShops(self.ecommerceDb);
     }
@@ -104,6 +109,8 @@ service / on new graphql:Listener(9090) {
         return rest:getOneShopByUser(self.ecommerceDb, userId);
     }
 
+    
+    
     function validateJwt(string token) returns error? {
         // The token usually comes with a "Bearer " prefix, remove it before validation
         string jwt;

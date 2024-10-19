@@ -18,7 +18,7 @@ configurable string connectionString = "mongodb+srv://nipuna21:giselle123@cluste
 final mongodb:Client mongoDb = check new ({
     connection: connectionString
 });
-
+SearchServiceClient ep = check new ("http://localhost:50051");
 service / on new http:Listener(9091) {
     private final mongodb:Database ecommerceDb;
 
@@ -42,8 +42,7 @@ service / on new http:Listener(9091) {
     resource function get shop/user/[string userId]() returns rest:Shop|error {
         return rest:getOneShopByUser(self.ecommerceDb, userId);
     }
-
-
+ 
     // Insert a new shop
     resource function post shop(http:Request req) returns http:Response|error {
         json shopJson = check req.getJsonPayload();
@@ -55,6 +54,8 @@ service / on new http:Listener(9091) {
         res.setJsonPayload(responseJson);
         return res;
     }
+    
+
 
     // Update a shop by shopId
     resource function put shop/[string shopId](http:Request req) returns http:Response|error {
@@ -121,9 +122,13 @@ service / on new http:Listener(9091) {
     }
 
     resource function get purchases() returns rest:Purchase[]|error {
+       
         return rest:getPurchases(self.ecommerceDb); // Call the imported function
     }
-
+//    io:print("Search service client running\n");
+//     QueryRequest performSearchRequest = {query: "ballerina", top_k: 4};
+//     SearchResponse performSearchResponse = check ep->PerformSearch(performSearchRequest);
+//     io:println(performSearchResponse);
     resource function get purchase/[string purchaseId]() returns rest:Purchase|error {
         // Call the getOnePurchase function to retrieve the purchase from the database
         rest:Purchase|error result = rest:getOnePurchase(self.ecommerceDb, purchaseId);
@@ -220,7 +225,25 @@ service / on new http:Listener(9091) {
     resource function get items() returns rest:Item[]|error {
         return rest:getItems(self.ecommerceDb); // Call the imported function
     }
+    resource function get recommendedItems(http:Caller caller, http:Request req) returns error? {
+        // Extract query and top_k from request parameters
+        string query = req.getQueryParamValue("query") ?: "default_query";
+        int top_k = check 'int:fromString(req.getQueryParamValue("top_k") ?: "5");
 
+        // Step 1: Call the gRPC service to get the search response (which includes the itemIds)
+        QueryRequest performSearchRequest = {query: query, top_k: top_k};
+        SearchResponse performSearchResponse = check ep->PerformSearch(performSearchRequest);
+
+        // Step 2: Extract itemIds from the gRPC response
+        string[] itemIds = from var item in performSearchResponse.item_ids select item;
+        io:println("ItemIds: ", itemIds);
+        // Step 3: Call getRecommendedItems function with the extracted itemIds to get the item details from MongoDB
+        rest:Item[] recommendedItems = check rest:getRecommendedItems(self.ecommerceDb, itemIds);
+
+        // Step 4: Return the array of recommended items as a JSON response
+        json jsonResponse = { "recommendedItems": recommendedItems };
+        check caller->respond(jsonResponse);
+    }
     resource function get item/[string itemId]() returns rest:Item|error {
         // Call the getOneItem function to retrieve the item from the database
         rest:Item|error result = rest:getOneItem(self.ecommerceDb, itemId);
@@ -234,9 +257,25 @@ service / on new http:Listener(9091) {
             return result;
         }
     }
+
+    
     resource function get item/shop/[string shopId]() returns rest:Item[]|error {
         // Call the getOneItem function to retrieve the item from the database
         rest:Item[]|error result = rest:getItemsByShop(self.ecommerceDb, shopId);
+
+        // Check if the result is an error or a valid item
+        if result is error {
+            // If an error occurred, return the error response
+            return error("Item not found: " + result.message());
+        } else {
+            // Return the found item
+            return result;
+        }
+    }
+
+    resource function get item/price/[decimal priceUpperBound]/[decimal priceLowerBound]() returns rest:Item[]|error {
+        // Call the getOneItem function to retrieve the item from the database
+        rest:Item[]|error result = rest:filterItemsbyPrice(self.ecommerceDb, priceLowerBound, priceUpperBound);
 
         // Check if the result is an error or a valid item
         if result is error {

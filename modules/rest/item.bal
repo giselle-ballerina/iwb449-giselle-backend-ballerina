@@ -92,8 +92,78 @@ public isolated function getItemsByShop(mongodb:Database ecommerceDb, string sho
     return foundItems;
 }
 
+public isolated function filterItemsbyShop(mongodb:Database ecommerceDb, string shopId )returns Item[]|error{
+    io:print("in item folder");
+    mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
+    map<json> filter = {"shopId": shopId};
+    mongodb:FindOptions findOptions = {};
+    stream<Item, error?> itemStream = check itemsCollection->find(filter, findOptions, (), Item);
+    Item[] items = [];
+    
+    check from var item in itemStream
+        do {
+            items.push(item);
+    };
+    io:print(items, "items here ");
+    // return from Item s in itemStream
+    //     select s;
+        
+    // Check if no items were found
+    if items.length() == 0 {
+        return error("No items found for the shopId: " + shopId);
+    }
+    // Return the found items
+    return items;
 
+}
+public isolated function getRecommendedItems(mongodb:Database ecommerceDb, string[] itemIds) returns Item[]|error {
+    mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
+    Item[] foundItems = [];
 
+    foreach string itemId in itemIds {
+        // Define the filter query to find the item by "itemId"
+        map<json> filter = {"itemId": itemId};
+        mongodb:FindOptions findOptions = {};
+
+        // Perform the findOne operation to get the single item
+        Item? foundItem = check itemsCollection->findOne(filter, findOptions, (), Item);
+
+        if foundItem is () {
+            io:println("Item with itemId '" + itemId + "' not found.");
+        } else {
+            // Add the found item to the result array
+            foundItems.push(foundItem);
+        }
+    }
+
+    // Check if no items were found
+    if foundItems.length() == 0 {
+        return error("No items found for the given itemIds.");
+    }
+
+    // Return the array of found items
+    return foundItems;
+}
+
+public isolated function filterItemsbyPrice(mongodb:Database ecommerceDb, decimal priceLowerBound, decimal priceUpperBound)returns Item[]|error{
+    io:print("in item folder");
+    mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
+    map<json> filter = {"price": {"$gte": priceLowerBound, "$lte": priceUpperBound}};
+    mongodb:FindOptions findOptions = {};
+    stream<Item, error?> itemStream = check itemsCollection->find(filter, findOptions, (), Item);
+    Item[] items = [];
+    
+    check from var item in itemStream
+        do {
+            items.push(item);
+    };
+    io:print(items, "items here ");
+    if items.length() == 0 {
+        return error("No items found for the price range");
+    }
+    // Return the found items
+    return items;
+}
 public isolated function insertItem(mongodb:Database ecommerceDb, Item newItem) returns error? {
     mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
     io:print(newItem);

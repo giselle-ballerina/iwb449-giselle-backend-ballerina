@@ -33,6 +33,7 @@ public type Notification record {|
     string notificationType;
 |};
 
+
 public isolated function getUsers(mongodb:Database ecommerceDb) returns User[]|error {
     mongodb:Collection users = check ecommerceDb->getCollection("users");
     stream<User, error?> result = check users->find();
