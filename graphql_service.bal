@@ -65,7 +65,10 @@ service / on new graphql:Listener(9090) {
     }
 
     resource function get itemsByPrice(decimal priceLowerBound, decimal priceUpperBound) returns rest:Item[]|error {
-        return rest:filterItemsbyPrice(self.ecommerceDb, priceLowerBound, priceUpperBound);
+        return rest:filterItemsbyPrice1(self.ecommerceDb, priceLowerBound, priceUpperBound);
+    }
+    resource function get itemsByPriceUpperLimit(decimal priceUpperBound) returns rest:Item[]|error {
+        return rest:filterItemsbyPrice2(self.ecommerceDb, priceUpperBound);
     }
     resource function get item(string itemId) returns rest:Item|error {
     // Call the getOneItem function to retrieve the item from the database

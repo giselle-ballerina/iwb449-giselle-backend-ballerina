@@ -18,7 +18,7 @@ configurable string connectionString = "mongodb+srv://nipuna21:giselle123@cluste
 final mongodb:Client mongoDb = check new ({
     connection: connectionString
 });
-SearchServiceClient ep = check new ("http://localhost:50051");
+SearchServiceClient ep = check new ("http://139.59.246.168:50051");
 service / on new http:Listener(9091) {
     private final mongodb:Database ecommerceDb;
 
@@ -142,7 +142,19 @@ service / on new http:Listener(9091) {
             return result;
         }
     }
+    resource function get purchase/shop/[string shopId]() returns rest:Purchase[]|error {
+        // Call the getOneItem function to retrieve the item from the database
+        rest:Purchase[]|error result = rest:getPurchasesByShop(self.ecommerceDb, shopId);
 
+        // Check if the result is an error or a valid item
+        if result is error {
+            // If an error occurred, return the error response
+            return error("purchases not found: " + result.message());
+        } else {
+            // Return the found item
+            return result;
+        }
+    }
     resource function post purchase(http:Request req) returns http:Response|error {
         // Extract the new purchase from the request payload
         json purchaseJson = check req.getJsonPayload();
@@ -188,6 +200,19 @@ service / on new http:Listener(9091) {
             return error("Offer not found: " + result.message());
         } else {
             // Return the found offer
+            return result;
+        }
+    }
+    resource function get offer/shop/[string shopId]() returns rest:Offer[]|error {
+        // Call the getOneItem function to retrieve the item from the database
+        rest:Offer[]|error result = rest:getOneOfferShop(self.ecommerceDb, shopId);
+
+        // Check if the result is an error or a valid item
+        if result is error {
+            // If an error occurred, return the error response
+            return error("Offers not found: " + result.message());
+        } else {
+            // Return the found item
             return result;
         }
     }
@@ -241,8 +266,8 @@ service / on new http:Listener(9091) {
         rest:Item[] recommendedItems = check rest:getRecommendedItems(self.ecommerceDb, itemIds);
 
         // Step 4: Return the array of recommended items as a JSON response
-        json jsonResponse = { "recommendedItems": recommendedItems };
-        check caller->respond(jsonResponse);
+       
+        check caller->respond(recommendedItems);
     }
     resource function get item/[string itemId]() returns rest:Item|error {
         // Call the getOneItem function to retrieve the item from the database
@@ -275,7 +300,21 @@ service / on new http:Listener(9091) {
 
     resource function get item/price/[decimal priceUpperBound]/[decimal priceLowerBound]() returns rest:Item[]|error {
         // Call the getOneItem function to retrieve the item from the database
-        rest:Item[]|error result = rest:filterItemsbyPrice(self.ecommerceDb, priceLowerBound, priceUpperBound);
+        rest:Item[]|error result = rest:filterItemsbyPrice1(self.ecommerceDb, priceLowerBound, priceUpperBound);
+
+        // Check if the result is an error or a valid item
+        if result is error {
+            // If an error occurred, return the error response
+            return error("Item not found: " + result.message());
+        } else {
+            // Return the found item
+            return result;
+        }
+    }
+
+    resource function get item/priceUpper/[decimal priceUpperBound]/[decimal priceLowerBound]() returns rest:Item[]|error {
+        // Call the getOneItem function to retrieve the item from the database
+        rest:Item[]|error result = rest:filterItemsbyPrice2(self.ecommerceDb, priceUpperBound);
 
         // Check if the result is an error or a valid item
         if result is error {

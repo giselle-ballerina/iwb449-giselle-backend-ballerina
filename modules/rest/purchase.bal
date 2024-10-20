@@ -50,6 +50,36 @@ public isolated function getOnePurchase(mongodb:Database ecommerceDb, string pur
         return foundPurchase;
     }
 }
+public isolated function getPurchasesByShop(mongodb:Database ecommerceDb, string shopId) returns Purchase[]|error {
+    // Get the "purchases" collection from the MongoDB database
+    mongodb:Collection purchasesCollection = check ecommerceDb->getCollection("purchases");
+
+    // Define the filter query to find purchases by "shopId"
+    map<json> filter = {"shopId": shopId};
+
+    // Define the options for the find operation
+    mongodb:FindOptions findOptions = {};
+
+    // Perform the find operation to get all purchases for the given shopId
+    stream<Purchase, error?> purchaseStream = check purchasesCollection->find(filter, findOptions, (), Purchase);
+
+    // Create an array to hold the purchases
+    Purchase[] purchases = [];
+
+    // Collect the purchases from the stream into the array
+    check from var purchase in purchaseStream
+        do {
+            purchases.push(purchase);
+    };
+
+    // Check if no purchases were found
+    if purchases.length() == 0 {
+        return error("No purchases found for the shopId: " + shopId);
+    }
+
+    // Return the found purchases
+    return purchases;
+}
 
 public isolated function insertPurchase(mongodb:Database ecommerceDb, Purchase newPurchase) returns error? {
     mongodb:Collection purchasesCollection = check ecommerceDb->getCollection("purchases");

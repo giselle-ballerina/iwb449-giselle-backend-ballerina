@@ -145,7 +145,7 @@ public isolated function getRecommendedItems(mongodb:Database ecommerceDb, strin
     return foundItems;
 }
 
-public isolated function filterItemsbyPrice(mongodb:Database ecommerceDb, decimal priceLowerBound, decimal priceUpperBound)returns Item[]|error{
+public isolated function filterItemsbyPrice1(mongodb:Database ecommerceDb, decimal priceLowerBound, decimal priceUpperBound)returns Item[]|error{
     io:print("in item folder");
     mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
     map<json> filter = {"price": {"$gte": priceLowerBound, "$lte": priceUpperBound}};
@@ -164,6 +164,29 @@ public isolated function filterItemsbyPrice(mongodb:Database ecommerceDb, decima
     // Return the found items
     return items;
 }
+
+public isolated function filterItemsbyPrice2(mongodb:Database ecommerceDb, decimal priceUpperBound)returns Item[]|error{
+    io:print("in item folder");
+    mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
+    map<json> filter = {"price": {"$lte": priceUpperBound}};
+    mongodb:FindOptions findOptions = {};
+    stream<Item, error?> itemStream = check itemsCollection->find(filter, findOptions, (), Item);
+    Item[] items = [];
+    
+    check from var item in itemStream
+        do {
+            items.push(item);
+    };
+    io:print(items, "items here ");
+    if items.length() == 0 {
+        return error("No items found for the price range");
+    }
+    // Return the found items
+    return items;
+}
+
+
+
 public isolated function insertItem(mongodb:Database ecommerceDb, Item newItem) returns error? {
     mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
     io:print(newItem);
