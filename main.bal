@@ -254,8 +254,8 @@ service / on new http:Listener(9091) {
         rest:Item[] recommendedItems = check rest:getRecommendedItems(self.ecommerceDb, itemIds);
 
         // Step 4: Return the array of recommended items as a JSON response
-        json jsonResponse = { "recommendedItems": recommendedItems };
-        check caller->respond(jsonResponse);
+       
+        check caller->respond(recommendedItems);
     }
     resource function get item/[string itemId]() returns rest:Item|error {
         // Call the getOneItem function to retrieve the item from the database
