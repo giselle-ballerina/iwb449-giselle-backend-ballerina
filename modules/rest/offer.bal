@@ -42,6 +42,43 @@ public isolated function getOneOffer(mongodb:Database ecommerceDb, string offerI
         return foundOffer;
     }
 }
+public isolated function getOneOfferShop(mongodb:Database ecommerceDb, string shopId) returns Offer[]|error {
+    // Log the process for debugging
+    io:print("Fetching offers for shopId: ", shopId);
+    
+    // Get the "offers" collection from the MongoDB database
+    mongodb:Collection offersCollection = check ecommerceDb->getCollection("offers");
+
+    // Define the filter query to find offers by "shopId"
+    map<json> filter = {"shopId": shopId};
+
+    // Define the options for the find operation
+    mongodb:FindOptions findOptions = {};
+
+    // Perform the find operation to get all offers
+    stream<Offer, error?> offerStream = check offersCollection->find(filter, findOptions, (), Offer);
+
+    // Create an array to hold the offers
+    Offer[] offers = [];
+
+    // Collect the offers from the stream into the array
+    check from var offer in offerStream
+        do {
+            offers.push(offer);
+    };
+
+    // Log the found offers
+    io:print(offers, " offers found ");
+
+    // Check if no offers were found
+    if offers.length() == 0 {
+        return error("No offers found for the shopId: " + shopId);
+    }
+
+    // Return the found offers
+    return offers;
+}
+
 
 public isolated function insertOffer(mongodb:Database ecommerceDb, Offer newOffer) returns error? {
     mongodb:Collection offersCollection = check ecommerceDb->getCollection("offers");

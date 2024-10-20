@@ -18,7 +18,7 @@ configurable string connectionString = "mongodb+srv://nipuna21:giselle123@cluste
 final mongodb:Client mongoDb = check new ({
     connection: connectionString
 });
-SearchServiceClient ep = check new ("http://localhost:50051");
+SearchServiceClient ep = check new ("http://139.59.246.168:50051");
 service / on new http:Listener(9091) {
     private final mongodb:Database ecommerceDb;
 
@@ -188,6 +188,19 @@ service / on new http:Listener(9091) {
             return error("Offer not found: " + result.message());
         } else {
             // Return the found offer
+            return result;
+        }
+    }
+    resource function get offer/shop/[string shopId]() returns rest:Offer[]|error {
+        // Call the getOneItem function to retrieve the item from the database
+        rest:Offer[]|error result = rest:getOneOfferShop(self.ecommerceDb, shopId);
+
+        // Check if the result is an error or a valid item
+        if result is error {
+            // If an error occurred, return the error response
+            return error("Offers not found: " + result.message());
+        } else {
+            // Return the found item
             return result;
         }
     }
