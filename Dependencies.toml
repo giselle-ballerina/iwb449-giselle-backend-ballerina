@@ -274,9 +274,6 @@ dependencies = [
 	{org = "ballerina", name = "lang.value"},
 	{org = "ballerina", name = "observe"}
 ]
-modules = [
-	{org = "ballerina", packageName = "log", moduleName = "log"}
-]
 
 [[package]]
 org = "ballerina"
@@ -421,20 +418,6 @@ modules = [
 
 [[package]]
 org = "ballerinax"
-name = "kafka"
-version = "4.2.0"
-dependencies = [
-	{org = "ballerina", name = "crypto"},
-	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "uuid"},
-	{org = "ballerinai", name = "observe"}
-]
-modules = [
-	{org = "ballerinax", packageName = "kafka", moduleName = "kafka"}
-]
-
-[[package]]
-org = "ballerinax"
 name = "mongodb"
 version = "5.0.0"
 dependencies = [
@@ -456,14 +439,9 @@ dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "io"},
 	{org = "ballerina", name = "jwt"},
-<<<<<<< HEAD
-	{org = "ballerina", name = "log"},
-=======
 	{org = "ballerina", name = "protobuf"},
->>>>>>> dev
 	{org = "ballerina", name = "test"},
 	{org = "ballerinai", name = "observe"},
-	{org = "ballerinax", name = "kafka"},
 	{org = "ballerinax", name = "mongodb"}
 ]
 modules = [
