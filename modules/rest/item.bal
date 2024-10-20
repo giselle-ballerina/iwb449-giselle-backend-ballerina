@@ -116,6 +116,34 @@ public isolated function filterItemsbyShop(mongodb:Database ecommerceDb, string 
     return items;
 
 }
+public isolated function getRecommendedItems(mongodb:Database ecommerceDb, string[] itemIds) returns Item[]|error {
+    mongodb:Collection itemsCollection = check ecommerceDb->getCollection("items");
+    Item[] foundItems = [];
+
+    foreach string itemId in itemIds {
+        // Define the filter query to find the item by "itemId"
+        map<json> filter = {"itemId": itemId};
+        mongodb:FindOptions findOptions = {};
+
+        // Perform the findOne operation to get the single item
+        Item? foundItem = check itemsCollection->findOne(filter, findOptions, (), Item);
+
+        if foundItem is () {
+            io:println("Item with itemId '" + itemId + "' not found.");
+        } else {
+            // Add the found item to the result array
+            foundItems.push(foundItem);
+        }
+    }
+
+    // Check if no items were found
+    if foundItems.length() == 0 {
+        return error("No items found for the given itemIds.");
+    }
+
+    // Return the array of found items
+    return foundItems;
+}
 
 public isolated function filterItemsbyPrice1(mongodb:Database ecommerceDb, decimal priceLowerBound, decimal priceUpperBound)returns Item[]|error{
     io:print("in item folder");
