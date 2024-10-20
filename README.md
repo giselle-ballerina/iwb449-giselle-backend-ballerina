@@ -31,7 +31,7 @@ Giselle is an online platform designed to simplify the online presence of retail
 
 - Ballerina installed on your system.
 - Docker installed for containerization.
-- PostgreSQL (or your preferred database) for managing data.
+
 
 ## Installation
 
