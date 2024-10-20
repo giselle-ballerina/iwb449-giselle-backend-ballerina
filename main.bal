@@ -10,7 +10,7 @@ configurable int port = 27017;
 configurable string username = "testUser";
 configurable string password = "testPassword";
 configurable string database = "ecommerce";
-//     String connectionString = "mongodb+srv://nipuna21:<db_password>@cluster0.a9vxy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
 // Initialize MongoDB client
 configurable string connectionString = "mongodb+srv://nipuna21:giselle123@cluster0.a9vxy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
@@ -72,19 +72,16 @@ service / on new http:Listener(9091) {
 
     // Resource function to get users
     resource function get users() returns rest:User[]|error {
-        return rest:getUsers(self.ecommerceDb); // Call the imported function
+        return rest:getUsers(self.ecommerceDb); 
     }
 
+    //get one user by userId
     resource function get user/[string userId]() returns rest:User|error {
-        // Call the getOneUser function to retrieve the user from the database
         rest:User|error result = rest:getOneUser(self.ecommerceDb, userId);
 
-        // Check if the result is an error or a valid user
         if result is error {
-            // If an error occurred, return the error response
             return error("User not found: " + result.message());
         } else {
-            // Return the found user
             return result;
         }
     }
@@ -94,7 +91,6 @@ service / on new http:Listener(9091) {
         json userJson = check req.getJsonPayload();
         rest:User newUser = check userJson.cloneWithType(rest:User);
 
-        // Call the insert function to add the user to the database
         check rest:insertUser(self.ecommerceDb, newUser);
 
         json responseJson = {"success": true, "message": "User inserted successfully"};
@@ -109,36 +105,27 @@ service / on new http:Listener(9091) {
         // Extract the updates from the request payload
         json updates = check req.getJsonPayload();
         if updates is map<json> {
-            // It's already a map<json>, so use it directly
             map<json> userMap = updates;
             // Call the update function to modify the user's data
             check rest:updateUser(self.ecommerceDb, userId, userMap);
             io:print("User updated successfully");
         }
-        // Return a success response
         http:Response res = new;
         res.setTextPayload("User updated successfully");
         return res;
     }
-
+    //get purchases
     resource function get purchases() returns rest:Purchase[]|error {
-       
-        return rest:getPurchases(self.ecommerceDb); // Call the imported function
+        return rest:getPurchases(self.ecommerceDb); 
     }
-//    io:print("Search service client running\n");
-//     QueryRequest performSearchRequest = {query: "ballerina", top_k: 4};
-//     SearchResponse performSearchResponse = check ep->PerformSearch(performSearchRequest);
-//     io:println(performSearchResponse);
+
+    
     resource function get purchase/[string purchaseId]() returns rest:Purchase|error {
         // Call the getOnePurchase function to retrieve the purchase from the database
         rest:Purchase|error result = rest:getOnePurchase(self.ecommerceDb, purchaseId);
-
-        // Check if the result is an error or a valid purchase
         if result is error {
-            // If an error occurred, return the error response
             return error("Purchase not found: " + result.message());
         } else {
-            // Return the found purchase
             return result;
         }
     }
@@ -146,40 +133,30 @@ service / on new http:Listener(9091) {
         // Call the getOneItem function to retrieve the item from the database
         rest:Purchase[]|error result = rest:getPurchasesByShop(self.ecommerceDb, shopId);
 
-        // Check if the result is an error or a valid item
         if result is error {
-            // If an error occurred, return the error response
             return error("purchases not found: " + result.message());
         } else {
-            // Return the found item
             return result;
         }
     }
     resource function post purchase(http:Request req) returns http:Response|error {
-        // Extract the new purchase from the request payload
         json purchaseJson = check req.getJsonPayload();
         rest:Purchase newPurchase = check purchaseJson.cloneWithType(rest:Purchase);
 
         // Call the insert function to add the purchase to the database
         check rest:insertPurchase(self.ecommerceDb, newPurchase);
-
-        // Return a success response
         http:Response res = new;
         res.setTextPayload("Purchase inserted successfully");
         return res;
     }
 
     resource function put purchase/[string purchaseId](http:Request req) returns http:Response|error {
-        // Extract the updates from the request payload
         json updates = check req.getJsonPayload();
         if updates is map<json> {
-            // It's already a map<json>, so use it directly
             map<json> purchaseMap = updates;
-            // Call the update function to modify the purchase's data
             check rest:updatePurchase(self.ecommerceDb, purchaseId, purchaseMap);
             io:print("Purchase updated successfully");
         }
-        // Return a success response
         http:Response res = new;
         res.setTextPayload("Purchase updated successfully");
         return res;
@@ -187,19 +164,16 @@ service / on new http:Listener(9091) {
 
     // Resource function to get offers
     resource function get offers() returns rest:Offer[]|error {
-        return rest:getOffers(self.ecommerceDb); // Call the imported function
+        return rest:getOffers(self.ecommerceDb); 
     }
 
     resource function get offer/[string offerId]() returns rest:Offer|error {
         // Call the getOneOffer function to retrieve the offer from the database
         rest:Offer|error result = rest:getOneOffer(self.ecommerceDb, offerId);
 
-        // Check if the result is an error or a valid offer
         if result is error {
-            // If an error occurred, return the error response
             return error("Offer not found: " + result.message());
         } else {
-            // Return the found offer
             return result;
         }
     }
@@ -207,12 +181,9 @@ service / on new http:Listener(9091) {
         // Call the getOneItem function to retrieve the item from the database
         rest:Offer[]|error result = rest:getOneOfferShop(self.ecommerceDb, shopId);
 
-        // Check if the result is an error or a valid item
         if result is error {
-            // If an error occurred, return the error response
             return error("Offers not found: " + result.message());
         } else {
-            // Return the found item
             return result;
         }
     }
@@ -221,11 +192,7 @@ service / on new http:Listener(9091) {
         // Extract the new offer from the request payload
         json offerJson = check req.getJsonPayload();
         rest:Offer newOffer = check offerJson.cloneWithType(rest:Offer);
-
-        // Call the insert function to add the offer to the database
         check rest:insertOffer(self.ecommerceDb, newOffer);
-
-        // Return a success response
         http:Response res = new;
         res.setTextPayload("Offer inserted successfully");
         return res;
@@ -235,50 +202,40 @@ service / on new http:Listener(9091) {
         // Extract the updates from the request payload
         json updates = check req.getJsonPayload();
         if updates is map<json> {
-            // It's already a map<json>, so use it directly
             map<json> offerMap = updates;
-            // Call the update function to modify the offer's data
             check rest:updateOffer(self.ecommerceDb, offerId, offerMap);
             io:print("Offer updated successfully");
         }
-        // Return a success response
         http:Response res = new;
         res.setTextPayload("Offer updated successfully");
         return res;
     }
 
     resource function get items() returns rest:Item[]|error {
-        return rest:getItems(self.ecommerceDb); // Call the imported function
+        return rest:getItems(self.ecommerceDb); 
     }
     resource function get recommendedItems(http:Caller caller, http:Request req) returns error? {
         // Extract query and top_k from request parameters
         string query = req.getQueryParamValue("query") ?: "default_query";
         int top_k = check 'int:fromString(req.getQueryParamValue("top_k") ?: "5");
 
-        // Step 1: Call the gRPC service to get the search response (which includes the itemIds)
+        //Call the gRPC service to get the search response (which includes the itemIds)
         QueryRequest performSearchRequest = {query: query, top_k: top_k};
         SearchResponse performSearchResponse = check ep->PerformSearch(performSearchRequest);
 
-        // Step 2: Extract itemIds from the gRPC response
+        // Extract itemIds from the gRPC response
         string[] itemIds = from var item in performSearchResponse.item_ids select item;
         io:println("ItemIds: ", itemIds);
-        // Step 3: Call getRecommendedItems function with the extracted itemIds to get the item details from MongoDB
         rest:Item[] recommendedItems = check rest:getRecommendedItems(self.ecommerceDb, itemIds);
 
-        // Step 4: Return the array of recommended items as a JSON response
-       
         check caller->respond(recommendedItems);
     }
     resource function get item/[string itemId]() returns rest:Item|error {
         // Call the getOneItem function to retrieve the item from the database
         rest:Item|error result = rest:getOneItem(self.ecommerceDb, itemId);
-
-        // Check if the result is an error or a valid item
         if result is error {
-            // If an error occurred, return the error response
             return error("Item not found: " + result.message());
         } else {
-            // Return the found item
             return result;
         }
     }
@@ -288,12 +245,9 @@ service / on new http:Listener(9091) {
         // Call the getOneItem function to retrieve the item from the database
         rest:Item[]|error result = rest:getItemsByShop(self.ecommerceDb, shopId);
 
-        // Check if the result is an error or a valid item
         if result is error {
-            // If an error occurred, return the error response
             return error("Item not found: " + result.message());
         } else {
-            // Return the found item
             return result;
         }
     }
@@ -301,13 +255,9 @@ service / on new http:Listener(9091) {
     resource function get item/price/[decimal priceUpperBound]/[decimal priceLowerBound]() returns rest:Item[]|error {
         // Call the getOneItem function to retrieve the item from the database
         rest:Item[]|error result = rest:filterItemsbyPrice1(self.ecommerceDb, priceLowerBound, priceUpperBound);
-
-        // Check if the result is an error or a valid item
         if result is error {
-            // If an error occurred, return the error response
             return error("Item not found: " + result.message());
         } else {
-            // Return the found item
             return result;
         }
     }
@@ -315,13 +265,9 @@ service / on new http:Listener(9091) {
     resource function get item/priceUpper/[decimal priceUpperBound]/[decimal priceLowerBound]() returns rest:Item[]|error {
         // Call the getOneItem function to retrieve the item from the database
         rest:Item[]|error result = rest:filterItemsbyPrice2(self.ecommerceDb, priceUpperBound);
-
-        // Check if the result is an error or a valid item
         if result is error {
-            // If an error occurred, return the error response
             return error("Item not found: " + result.message());
         } else {
-            // Return the found item
             return result;
         }
     }
@@ -344,61 +290,14 @@ service / on new http:Listener(9091) {
         // Extract the updates from the request payload
         json updates = check req.getJsonPayload();
         if updates is map<json> {
-            // It's already a map<json>, so use it directly
             map<json> itemMap = updates;
             // Call the update function to modify the item's data
             check rest:updateItem(self.ecommerceDb, itemId, itemMap);
             io:print("Item updated successfully");
         }
-        // Return a success response
         http:Response res = new;
         res.setTextPayload("Item updated successfully");
         return res;
     }
 
-    // resource function post test(http:Request req) returns http:Response|error {
-    //     // Extract the new user from the request payload
-    //     json userJson = check req.getJsonPayload();
-    //     rest:Test newUser = check userJson.cloneWithType(rest:Test);
-
-    //     // Call the insert function to add the user to the database
-    //     check rest:insertTest(self.ecommerceDb, newUser);
-
-    //     json responseJson = {"success": true, "message": "Test inserted successfully"};
-    //     http:Response res = new;
-    //     res.setJsonPayload(responseJson);
-
-    //     return res;
-    // }
-    //     resource function get test() returns rest:Test[]|error {
-    //     return rest:getTests(self.ecommerceDb); // Call the imported function
-    // }
-
 }
-
-// curl -X POST "http://localhost:9091/item" -H "Content-Type: application/json" -d '{
-//   "itemId": "item123",
-//   "shopId": "shop456",
-//   "price": 19.99,
-//   "tags": ["tag1", "tag2"],
-//   "productName": "Product Name",
-//   "varients": [{"color": "red", "size": "M", "qty": 10}],
-//   "description": "Description",
-//   "brand": "Brand"
-// }'
-// public type Item record {|
-//     string itemId;
-//     string shopId;
-//     decimal price;
-//     string[] tags;
-//     string productName;
-//     Varient[]? varients;
-//     string? description;
-//     string? brand;
-// |};
-
-// public type Varient record {|
-//     string color;
-//     string size;
-//     int qty;
-// |};
