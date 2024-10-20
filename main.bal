@@ -142,7 +142,19 @@ service / on new http:Listener(9091) {
             return result;
         }
     }
+    resource function get purchase/shop/[string shopId]() returns rest:Purchase[]|error {
+        // Call the getOneItem function to retrieve the item from the database
+        rest:Purchase[]|error result = rest:getPurchasesByShop(self.ecommerceDb, shopId);
 
+        // Check if the result is an error or a valid item
+        if result is error {
+            // If an error occurred, return the error response
+            return error("purchases not found: " + result.message());
+        } else {
+            // Return the found item
+            return result;
+        }
+    }
     resource function post purchase(http:Request req) returns http:Response|error {
         // Extract the new purchase from the request payload
         json purchaseJson = check req.getJsonPayload();
