@@ -9,10 +9,10 @@ import ballerinax/mongodb;
 // Define the JWT Auth Config
 jwt:ValidatorConfig validatorConfig = {
     issuer: "https://dev-i3yw6d5usqkkasb3.us.auth0.com", // Auth0 domain
-    audience: "g8abCZJziIXX2yr5eSJtuNJ5Ogrc9LL7", // Set this to your Auth0 Client ID or specified audience
+    audience: "g8abCZJziIXX2yr5eSJtuNJ5Ogrc9LL7", 
     signatureConfig: {
-        jwksConfig: {url: "https://dev-i3yw6d5usqkkasb3.us.auth0.com/.well-known/jwks.json"}, // JWKS endpoint for public keys
-        secret: "75c897781205c4b56e7b606741e8df3cce6bcda53734b38bc7694615ef7e0c78" // HMAC secret if applicable
+        jwksConfig: {url: "https://dev-i3yw6d5usqkkasb3.us.auth0.com/.well-known/jwks.json"}, 
+        secret: "75c897781205c4b56e7b606741e8df3cce6bcda53734b38bc7694615ef7e0c78" 
     }
 };
 
@@ -41,20 +41,12 @@ service / on new graphql:Listener(9090) {
         return;
     }
 
-    // GraphQL query to get all users
     resource function get users() returns rest:User[]|error {
         return rest:getUsers(self.ecommerceDb);
     }
 
-    // // GraphQL query to get a single user by userId
-    // resource function get user(string userId, @http:Header string token)
-
     resource function get user(string userId)
             returns rest:User|error {
-        // // Validate the JWT token
-        // io:println("hi");
-        // io:println("Token: " + token);
-        // check self.validateJwt(token);
         return rest:getOneUser(self.ecommerceDb, userId);
     }
     resource function get items() returns rest:Item[]|error {

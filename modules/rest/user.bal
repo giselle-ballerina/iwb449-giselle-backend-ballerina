@@ -33,71 +33,52 @@ public type Notification record {|
     string notificationType;
 |};
 
-
+//get users
 public isolated function getUsers(mongodb:Database ecommerceDb) returns User[]|error {
     mongodb:Collection users = check ecommerceDb->getCollection("users");
     stream<User, error?> result = check users->find();
     return from User u in result
         select u;
 }
-
+//get user by user id
 public isolated function getOneUser(mongodb:Database ecommerceDb, string userId) returns User|error {
-    // Get the "users" collection from the MongoDB database
     mongodb:Collection usersCollection = check ecommerceDb->getCollection("users");
-
-    // Define the filter query to find the user by "userId"
     map<json> filter = {"userId": userId};
-
-    // Define the options for the findOne operation
     mongodb:FindOptions findOptions = {};
-
-    // Perform the findOne operation to get the single user
     User? foundUser = check usersCollection->findOne(filter, findOptions, (), User);
 
     if foundUser is () {
-        // Handle case where no user was found
         return error("User with userId '" + userId + "' not found.");
     } else {
-        // Return the found user
         return foundUser;
     }
 }
 
+//insert a new user to db
 public isolated function insertUser(mongodb:Database ecommerceDb, User newUser) returns error? {
     mongodb:Collection usersCollection = check ecommerceDb->getCollection("users");
-
-    // Query to check if a user with the given userId already exists
     map<json> filter = {"userId": newUser.userId};
-
-    // Create an empty FindOptions object, as required by the findOne function
     mongodb:FindOptions findOptions = {};
-
-    // Check if the user exists in the database
     User? existingUser = check usersCollection->findOne(filter, findOptions, (), User);
 
     if existingUser is () {
-        // User does not exist, proceed with inserting the new user
         check usersCollection->insertOne(newUser);
     } else {
-        // Handle the case where the user already exists
         io:print("User with userId " + newUser.userId + " already exists.");
     }
 }
 
+//insert multiple users 
 public isolated function insertMultipleUsers(mongodb:Database ecommerceDb, User[] newUsers) returns error? {
     mongodb:Collection usersCollection = check ecommerceDb->getCollection("users");
-
-    // Insert multiple user documents into the collection
     check usersCollection->insertMany(newUsers);
 }
 
 public isolated function updateUser(mongodb:Database ecommerceDb, string userId, map<json> updates) returns error? {
     mongodb:Collection usersCollection = check ecommerceDb->getCollection("users");
 
-    // Define the query to find the user by userId
     map<json> query = {"userId": userId};
 
-    // Define the update operation using the $set operator
     mongodb:Update updateData = {"set": updates};
 
     // Update the user's document
